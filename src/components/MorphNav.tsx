@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { motion, MotionConfig } from "framer-motion";
-import { Instagram, Linkedin, Mail, Menu, ArrowRight, X } from "lucide-react";
+import { Instagram, Linkedin, Mail, Menu, X } from "lucide-react";
 import { useEffect, useState, type CSSProperties } from "react";
 import { useNav } from "@/lib/nav-context";
 
@@ -151,11 +151,10 @@ export function MorphNav() {
               {cta && (
                 <Link
                   to={cta.href as "/"}
-                  className="group inline-flex h-10 items-center gap-2 whitespace-nowrap bg-foreground px-4 text-primary-foreground transition hover:scale-[1.02]"
+                  className="inline-flex h-10 items-center whitespace-nowrap bg-foreground px-4 text-primary-foreground transition hover:scale-[1.02]"
                   style={squircle}
                 >
                   <span className="font-medium">{cta.label}</span>
-                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                 </Link>
               )}
             </motion.div>
