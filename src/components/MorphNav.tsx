@@ -48,7 +48,21 @@ export function MorphNav() {
     dock === "left" ? "justify-start" : dock === "right" ? "justify-end" : "justify-center";
 
   const ctaOrder = dock === "right" ? -10 : 10;
-  const hamburgerOrder = dock === "right" ? 10 : -10;
+
+  const Hamburger = ({ side }: { side: "left" | "right" }) => (
+    <button
+      onClick={() => setMenuOpen((v) => !v)}
+      aria-label="Open menu"
+      aria-expanded={menuOpen}
+      className="grid h-10 w-10 place-items-center rounded-full text-foreground/90 transition hover:bg-white/10"
+      style={squircle}
+      data-side={side}
+    >
+      <motion.div animate={{ rotate: menuOpen ? 90 : 0 }}>
+        {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+      </motion.div>
+    </button>
+  );
 
   return (
     <MotionConfig transition={spring}>
@@ -59,44 +73,34 @@ export function MorphNav() {
             className="glass pointer-events-auto relative flex items-center px-2 py-2 text-sm"
             style={squircle}
           >
-            {/* HAMBURGER — present only when collapsed */}
-            <AnimatePresence initial={false}>
-              {collapsed && (
+            {/* LEFT HAMBURGER — only when docked LEFT */}
+            <AnimatePresence initial={false} mode="popLayout">
+              {dock === "left" && (
                 <motion.div
-                  key="hamburger"
+                  key="hamburger-left"
                   layout
-                  initial={{ opacity: 0, scale: 0.6 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.6 }}
-                  style={{ order: hamburgerOrder }}
-                  className="mr-1"
+                  initial={{ opacity: 0, scale: 0.6, width: 0 }}
+                  animate={{ opacity: 1, scale: 1, width: "auto" }}
+                  exit={{ opacity: 0, scale: 0.6, width: 0 }}
+                  style={{ order: -20 }}
+                  className="mr-1 overflow-hidden"
                 >
-                  <button
-                    onClick={() => setMenuOpen((v) => !v)}
-                    aria-label="Open menu"
-                    aria-expanded={menuOpen}
-                    className="grid h-10 w-10 place-items-center rounded-full text-foreground/90 transition hover:bg-white/10"
-                    style={squircle}
-                  >
-                    <motion.div animate={{ rotate: menuOpen ? 90 : 0 }}>
-                      {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                    </motion.div>
-                  </button>
+                  <Hamburger side="left" />
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* TEXT NAV ITEMS + DOT SEPARATOR — present when centered */}
-            <AnimatePresence initial={false}>
+            {/* TEXT NAV ITEMS + SEPARATOR — present when centered */}
+            <AnimatePresence initial={false} mode="popLayout">
               {!collapsed && (
                 <motion.div
                   key="center-items"
                   layout
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
+                  initial={{ opacity: 0, width: 0 }}
+                  animate={{ opacity: 1, width: "auto" }}
+                  exit={{ opacity: 0, width: 0 }}
                   style={{ order: 0 }}
-                  className="flex items-center"
+                  className="flex items-center overflow-hidden"
                 >
                   {navItems.map((n) => (
                     <Link
@@ -109,7 +113,6 @@ export function MorphNav() {
                       {n.label}
                     </Link>
                   ))}
-                  {/* thin vertical separator */}
                   <span className="mx-3 h-5 w-px bg-foreground/25" aria-hidden />
                 </motion.div>
               )}
@@ -129,20 +132,22 @@ export function MorphNav() {
               ))}
             </div>
 
-            {/* CTA — grows from the side opposite the dock; width animates on label change */}
-            <AnimatePresence initial={false}>
+            {/* CTA — grows from the side opposite the dock */}
+            <AnimatePresence initial={false} mode="popLayout">
               {collapsed && cta && (
                 <motion.div
                   key="cta"
                   layout
-                  initial={{ opacity: 0, scale: 0.85 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.85 }}
-                  style={{
-                    order: ctaOrder,
+                  initial={{ opacity: 0, width: 0, marginLeft: 0, marginRight: 0 }}
+                  animate={{
+                    opacity: 1,
+                    width: "auto",
                     marginLeft: dock === "left" ? 20 : 0,
                     marginRight: dock === "right" ? 20 : 0,
                   }}
+                  exit={{ opacity: 0, width: 0, marginLeft: 0, marginRight: 0 }}
+                  style={{ order: ctaOrder }}
+                  className="overflow-hidden"
                 >
                   <Link
                     to={cta.href as "/"}
@@ -153,6 +158,23 @@ export function MorphNav() {
                       {cta.label}
                     </motion.span>
                   </Link>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* RIGHT HAMBURGER — only when docked RIGHT */}
+            <AnimatePresence initial={false} mode="popLayout">
+              {dock === "right" && (
+                <motion.div
+                  key="hamburger-right"
+                  layout
+                  initial={{ opacity: 0, scale: 0.6, width: 0 }}
+                  animate={{ opacity: 1, scale: 1, width: "auto" }}
+                  exit={{ opacity: 0, scale: 0.6, width: 0 }}
+                  style={{ order: 20 }}
+                  className="ml-1 overflow-hidden"
+                >
+                  <Hamburger side="right" />
                 </motion.div>
               )}
             </AnimatePresence>
