@@ -108,6 +108,8 @@ function Shader() {
 }
 
 export function LiquidBackground() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   return (
     <div
       aria-hidden
@@ -117,13 +119,16 @@ export function LiquidBackground() {
           "radial-gradient(80% 60% at 30% 30%, oklch(0.2 0.15 295) 0%, transparent 60%), radial-gradient(60% 50% at 70% 70%, oklch(0.25 0.18 200) 0%, transparent 55%), oklch(0.06 0.02 280)",
       }}
     >
-      <Canvas
-        gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
-        dpr={[1, 1.5]}
-        camera={{ position: [0, 0, 1] }}
-      >
-        <Shader />
-      </Canvas>
+      {mounted && (
+        <Canvas
+          gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
+          dpr={[1, 1.5]}
+          camera={{ position: [0, 0, 1] }}
+        >
+          <Shader />
+        </Canvas>
+      )}
     </div>
   );
 }
+
