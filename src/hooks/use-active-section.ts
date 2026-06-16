@@ -7,12 +7,14 @@ export type Section = {
   cta: SectionCta;
 };
 
-const DOCK_DEBOUNCE_MS = 120;
-
 /**
- * Observe DOM elements with [data-section="id"] and update the nav dock + CTA
- * based on which one is most prominently in view. Debounced so rapid scrolling
- * doesn't whip the nav back and forth.
+ * Scroll-position-based active section detection.
+ *
+ * We pick the section whose vertical center is closest to the viewport
+ * center on every animation frame. This gives perfectly symmetric timing
+ * in both directions (no debounce asymmetry between scroll-up and
+ * scroll-down) and changes the dock the moment a new section crosses
+ * the midline.
  */
 export function useActiveSection(sections: Section[]) {
   const { setDock, setCta } = useNav();
@@ -21,41 +23,51 @@ export function useActiveSection(sections: Section[]) {
     if (typeof window === "undefined") return;
     const map = new Map(sections.map((s) => [s.id, s]));
     const els = sections
-      .map((s) => document.querySelector(`[data-section="${s.id}"]`))
-      .filter((el): el is Element => !!el);
+      .map((s) => document.querySelector<HTMLElement>(`[data-section="${s.id}"]`))
+      .filter((el): el is HTMLElement => !!el);
     if (!els.length) return;
 
-    const visibility = new Map<string, number>();
-    let pending: number | null = null;
     let lastId: string | null = null;
+    let rafId: number | null = null;
+    let scheduled = false;
 
-    const commit = () => {
+    const measure = () => {
+      scheduled = false;
+      const viewportCenter = window.innerHeight / 2;
       let bestId: string | null = null;
-      let bestRatio = 0;
-      visibility.forEach((r, id) => {
-        if (r > bestRatio) { bestRatio = r; bestId = id; }
-      });
-      if (bestId && bestRatio > 0.15 && bestId !== lastId) {
+      let bestDist = Infinity;
+      for (const el of els) {
+        const r = el.getBoundingClientRect();
+        const center = r.top + r.height / 2;
+        const dist = Math.abs(center - viewportCenter);
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestId = el.dataset.section ?? null;
+        }
+      }
+      if (bestId && bestId !== lastId) {
         const s = map.get(bestId);
-        if (s) { lastId = bestId; setDock(s.dock); setCta(s.cta); }
+        if (s) {
+          lastId = bestId;
+          setDock(s.dock);
+          setCta(s.cta);
+        }
       }
     };
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          const id = (e.target as HTMLElement).dataset.section!;
-          visibility.set(id, e.intersectionRatio);
-        }
-        if (pending) window.clearTimeout(pending);
-        pending = window.setTimeout(commit, DOCK_DEBOUNCE_MS);
-      },
-      { threshold: [0, 0.15, 0.3, 0.5, 0.7, 0.9] },
-    );
-    els.forEach((el) => io.observe(el));
+    const schedule = () => {
+      if (scheduled) return;
+      scheduled = true;
+      rafId = window.requestAnimationFrame(measure);
+    };
+
+    schedule();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
     return () => {
-      if (pending) window.clearTimeout(pending);
-      io.disconnect();
+      if (rafId) window.cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
     };
   }, [sections, setDock, setCta]);
 }
