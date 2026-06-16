@@ -48,7 +48,21 @@ export function MorphNav() {
     dock === "left" ? "justify-start" : dock === "right" ? "justify-end" : "justify-center";
 
   const ctaOrder = dock === "right" ? -10 : 10;
-  const hamburgerOrder = dock === "right" ? 10 : -10;
+
+  const Hamburger = ({ side }: { side: "left" | "right" }) => (
+    <button
+      onClick={() => setMenuOpen((v) => !v)}
+      aria-label="Open menu"
+      aria-expanded={menuOpen}
+      className="grid h-10 w-10 place-items-center rounded-full text-foreground/90 transition hover:bg-white/10"
+      style={squircle}
+      data-side={side}
+    >
+      <motion.div animate={{ rotate: menuOpen ? 90 : 0 }}>
+        {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+      </motion.div>
+    </button>
+  );
 
   return (
     <MotionConfig transition={spring}>
@@ -59,29 +73,19 @@ export function MorphNav() {
             className="glass pointer-events-auto relative flex items-center px-2 py-2 text-sm"
             style={squircle}
           >
-            {/* HAMBURGER — present only when collapsed */}
-            <AnimatePresence initial={false}>
-              {collapsed && (
+            {/* LEFT HAMBURGER — only when docked LEFT */}
+            <AnimatePresence initial={false} mode="popLayout">
+              {dock === "left" && (
                 <motion.div
-                  key="hamburger"
+                  key="hamburger-left"
                   layout
-                  initial={{ opacity: 0, scale: 0.6 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.6 }}
-                  style={{ order: hamburgerOrder }}
-                  className="mr-1"
+                  initial={{ opacity: 0, scale: 0.6, width: 0 }}
+                  animate={{ opacity: 1, scale: 1, width: "auto" }}
+                  exit={{ opacity: 0, scale: 0.6, width: 0 }}
+                  style={{ order: -20 }}
+                  className="mr-1 overflow-hidden"
                 >
-                  <button
-                    onClick={() => setMenuOpen((v) => !v)}
-                    aria-label="Open menu"
-                    aria-expanded={menuOpen}
-                    className="grid h-10 w-10 place-items-center rounded-full text-foreground/90 transition hover:bg-white/10"
-                    style={squircle}
-                  >
-                    <motion.div animate={{ rotate: menuOpen ? 90 : 0 }}>
-                      {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                    </motion.div>
-                  </button>
+                  <Hamburger side="left" />
                 </motion.div>
               )}
             </AnimatePresence>
