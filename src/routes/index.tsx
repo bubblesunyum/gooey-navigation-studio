@@ -15,11 +15,12 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  // Nav docks OPPOSITE the section's content so the two don't overlap.
   useActiveSection([
     { id: "hero", dock: "center", cta: null },
-    { id: "about", dock: "left", cta: { label: "more about me", href: "/about" } },
-    { id: "projects", dock: "right", cta: { label: "see all projects", href: "/projects" } },
-    { id: "thanks", dock: "left", cta: { label: "say hello", href: "/thanks" } },
+    { id: "about", dock: "right", cta: { label: "more about me", href: "/about" } },
+    { id: "projects", dock: "left", cta: { label: "see all projects", href: "/projects" } },
+    { id: "thanks", dock: "right", cta: { label: "say hello", href: "/thanks" } },
   ]);
 
   return (
