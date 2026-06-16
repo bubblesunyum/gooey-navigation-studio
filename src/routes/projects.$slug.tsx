@@ -34,7 +34,7 @@ export const Route = createFileRoute("/projects/$slug")({
 function ProjectDetail() {
   const { project } = Route.useLoaderData();
   useActiveSection([
-    { id: `proj-${project.slug}`, dock: "left", cta: { label: "back to projects", href: "/projects" } },
+    { id: `proj-${project.slug}`, dock: "right", cta: { label: "back to projects", href: "/projects" } },
   ]);
 
   const idx = projects.findIndex((p) => p.slug === project.slug);
