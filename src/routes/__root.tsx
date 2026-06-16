@@ -96,7 +96,9 @@ function RootComponent() {
       <NavProvider>
         <LiquidBackground />
         <GooFilter />
-        <Outlet />
+        <div className="mx-auto w-full max-w-[1920px]">
+          <Outlet />
+        </div>
         <MorphNav />
       </NavProvider>
     </QueryClientProvider>
