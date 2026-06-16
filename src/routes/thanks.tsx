@@ -22,7 +22,7 @@ const credits = [
 
 function Thanks() {
   useActiveSection([
-    { id: "thanks-top", dock: "left", cta: { label: "back home", href: "/" } },
+    { id: "thanks-top", dock: "right", cta: { label: "back home", href: "/" } },
   ]);
   return (
     <main className="px-6 pt-32 pb-40">

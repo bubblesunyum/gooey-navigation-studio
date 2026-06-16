@@ -15,7 +15,7 @@ export const Route = createFileRoute("/about")({
 
 function About() {
   useActiveSection([
-    { id: "about-top", dock: "left", cta: { label: "see projects", href: "/projects" } },
+    { id: "about-top", dock: "right", cta: { label: "see projects", href: "/projects" } },
   ]);
   return (
     <main className="px-6 pt-32 pb-40">
