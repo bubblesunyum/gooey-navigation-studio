@@ -7,7 +7,7 @@ export type Section = {
   cta: SectionCta;
 };
 
-const DOCK_DEBOUNCE_MS = 280;
+const DOCK_DEBOUNCE_MS = 120;
 
 /**
  * Observe DOM elements with [data-section="id"] and update the nav dock + CTA

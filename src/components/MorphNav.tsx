@@ -1,12 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { motion, MotionConfig } from "framer-motion";
+import { motion, MotionConfig, AnimatePresence } from "framer-motion";
 import { Instagram, Linkedin, Mail, Menu, X } from "lucide-react";
 import { useEffect, useState, type CSSProperties } from "react";
 import { useNav } from "@/lib/nav-context";
 
 // One shared spring used by EVERY animating element in the nav so the whole
 // thing moves as a single, coordinated organism.
-const spring = { type: "spring" as const, stiffness: 260, damping: 32, mass: 0.9 };
+const spring = { type: "spring" as const, stiffness: 300, damping: 34, mass: 0.8 };
 
 const squircle: CSSProperties = {
   borderRadius: 20,
@@ -40,7 +40,6 @@ export function MorphNav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const collapsed = dock !== "center";
 
-  // close popover when returning to center
   useEffect(() => {
     if (!collapsed) setMenuOpen(false);
   }, [collapsed]);
@@ -48,116 +47,115 @@ export function MorphNav() {
   const justify =
     dock === "left" ? "justify-start" : dock === "right" ? "justify-end" : "justify-center";
 
-  // When docked RIGHT, the CTA grows from the LEFT (it's the first child).
-  // When docked LEFT, the CTA grows from the RIGHT (last child).
   const ctaOrder = dock === "right" ? -10 : 10;
   const hamburgerOrder = dock === "right" ? 10 : -10;
 
   return (
     <MotionConfig transition={spring}>
-      {/* Outer wrapper clamps the nav's travel: center point can never move
-          more than 960px from viewport center (max width 1920px, centered). */}
       <div className="pointer-events-none fixed inset-x-0 bottom-6 z-50 px-6">
         <div className={`mx-auto flex max-w-[1920px] ${justify}`}>
           <motion.nav
             layout
-            transition={spring}
-            className="glass pointer-events-auto relative flex items-center gap-1 px-2 py-2 text-sm"
+            className="glass pointer-events-auto relative flex items-center px-2 py-2 text-sm"
             style={squircle}
           >
-            {/* HAMBURGER — only when collapsed */}
-            <motion.div
-              animate={{
-                width: collapsed ? 40 : 0,
-                opacity: collapsed ? 1 : 0,
-                marginRight: collapsed ? 4 : 0,
-              }}
-              style={{ order: hamburgerOrder }}
-              className="overflow-hidden"
-            >
-              <button
-                onClick={() => setMenuOpen((v) => !v)}
-                aria-label="Open menu"
-                aria-expanded={menuOpen}
-                className="grid h-10 w-10 place-items-center rounded-full text-foreground/90 transition hover:bg-white/10"
-                style={squircle}
-              >
-                <motion.div animate={{ rotate: menuOpen ? 90 : 0 }}>
-                  {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                </motion.div>
-              </button>
-            </motion.div>
-
-            {/* TEXT NAV ITEMS — present when centered */}
-            {navItems.map((n, i) => (
-              <motion.div
-                key={n.label}
-                animate={{
-                  width: collapsed ? 0 : "auto",
-                  opacity: collapsed ? 0 : 1,
-                  marginLeft: collapsed ? 0 : 2,
-                  marginRight: collapsed ? 0 : 2,
-                }}
-                style={{ order: i }}
-                className="overflow-hidden whitespace-nowrap"
-              >
-                <Link
-                  to={n.to}
-                  className="block rounded-full px-3 py-2 text-foreground/90 transition hover:bg-white/10"
-                  style={squircle}
-                  activeProps={{ className: "block rounded-full px-3 py-2 bg-white/15 text-foreground" }}
+            {/* HAMBURGER — present only when collapsed */}
+            <AnimatePresence initial={false}>
+              {collapsed && (
+                <motion.div
+                  key="hamburger"
+                  layout
+                  initial={{ opacity: 0, scale: 0.6 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.6 }}
+                  style={{ order: hamburgerOrder }}
+                  className="mr-1"
                 >
-                  {n.label}
-                </Link>
-              </motion.div>
-            ))}
+                  <button
+                    onClick={() => setMenuOpen((v) => !v)}
+                    aria-label="Open menu"
+                    aria-expanded={menuOpen}
+                    className="grid h-10 w-10 place-items-center rounded-full text-foreground/90 transition hover:bg-white/10"
+                    style={squircle}
+                  >
+                    <motion.div animate={{ rotate: menuOpen ? 90 : 0 }}>
+                      {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                    </motion.div>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* DOT SEPARATOR */}
-            <motion.span
-              animate={{
-                width: collapsed ? 0 : 6,
-                opacity: collapsed ? 0 : 0.5,
-                marginLeft: collapsed ? 0 : 8,
-                marginRight: collapsed ? 0 : 8,
-              }}
-              style={{ order: 5 }}
-              className="h-1.5 rounded-full bg-foreground"
-            />
+            {/* TEXT NAV ITEMS + DOT SEPARATOR — present when centered */}
+            <AnimatePresence initial={false}>
+              {!collapsed && (
+                <motion.div
+                  key="center-items"
+                  layout
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  style={{ order: 0 }}
+                  className="flex items-center"
+                >
+                  {navItems.map((n) => (
+                    <Link
+                      key={n.label}
+                      to={n.to}
+                      className="block rounded-full px-3 py-2 text-foreground/90 transition hover:bg-white/10"
+                      style={squircle}
+                      activeProps={{ className: "block rounded-full px-3 py-2 bg-white/15 text-foreground" }}
+                    >
+                      {n.label}
+                    </Link>
+                  ))}
+                  {/* thin vertical separator */}
+                  <span className="mx-3 h-5 w-px bg-foreground/25" aria-hidden />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* SOCIAL ICONS — always present */}
-            {socials.map((s, i) => (
-              <motion.a
-                key={s.label}
-                href={s.href}
-                aria-label={s.label}
-                style={{ order: 6 + i }}
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-foreground/80 transition hover:bg-white/10 hover:text-foreground"
-              >
-                <s.Icon className="h-4 w-4" />
-              </motion.a>
-            ))}
-
-            {/* CTA — grows from opposite side of dock */}
-            <motion.div
-              animate={{
-                width: collapsed && cta ? "auto" : 0,
-                opacity: collapsed && cta ? 1 : 0,
-                marginLeft: collapsed && cta && dock === "left" ? 12 : 0,
-                marginRight: collapsed && cta && dock === "right" ? 12 : 0,
-              }}
-              style={{ order: ctaOrder }}
-              className="overflow-hidden"
-            >
-              {cta && (
-                <Link
-                  to={cta.href as "/"}
-                  className="inline-flex h-10 items-center whitespace-nowrap bg-foreground px-4 text-primary-foreground transition hover:scale-[1.02]"
-                  style={squircle}
+            <div className="flex items-center" style={{ order: 5 }}>
+              {socials.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  aria-label={s.label}
+                  className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-foreground/80 transition hover:bg-white/10 hover:text-foreground"
                 >
-                  <span className="font-medium">{cta.label}</span>
-                </Link>
+                  <s.Icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
+
+            {/* CTA — grows from the side opposite the dock; width animates on label change */}
+            <AnimatePresence initial={false}>
+              {collapsed && cta && (
+                <motion.div
+                  key="cta"
+                  layout
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.85 }}
+                  style={{
+                    order: ctaOrder,
+                    marginLeft: dock === "left" ? 20 : 0,
+                    marginRight: dock === "right" ? 20 : 0,
+                  }}
+                >
+                  <Link
+                    to={cta.href as "/"}
+                    className="inline-flex h-10 items-center whitespace-nowrap bg-foreground px-4 text-primary-foreground transition hover:scale-[1.02]"
+                    style={squircle}
+                  >
+                    <motion.span layout="position" key={cta.label} className="font-medium">
+                      {cta.label}
+                    </motion.span>
+                  </Link>
+                </motion.div>
               )}
-            </motion.div>
+            </AnimatePresence>
 
             {/* HAMBURGER POPOVER */}
             <motion.div
