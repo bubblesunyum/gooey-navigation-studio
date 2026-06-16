@@ -71,7 +71,7 @@ export function MorphNav() {
   const ctaOnLeft = dock === "right";
 
   return (
-    <MotionConfig transition={spring}>
+    <MotionConfig transition={transition}>
       <div className="pointer-events-none fixed inset-x-0 bottom-6 z-50 px-6">
         <div className={`mx-auto flex max-w-[1920px] ${justify}`}>
           <motion.nav
