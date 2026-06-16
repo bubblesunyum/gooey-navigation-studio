@@ -91,9 +91,10 @@ function Shader() {
     [],
   );
 
-  useFrame(({ clock, size, pointer }) => {
+  useFrame(({ clock, size, pointer, gl }) => {
     uniforms.uTime.value = clock.elapsedTime;
-    uniforms.uResolution.value.set(size.width * size.dpr || size.width, size.height * size.dpr || size.height);
+    const dpr = gl.getPixelRatio();
+    uniforms.uResolution.value.set(size.width * dpr, size.height * dpr);
     mouse.current.lerp(new THREE.Vector2(pointer.x * 0.5 + 0.5, pointer.y * 0.5 + 0.5), 0.04);
     uniforms.uMouse.value.copy(mouse.current);
   });
