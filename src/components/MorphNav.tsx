@@ -4,9 +4,13 @@ import { Instagram, Linkedin, Mail, Menu, X } from "lucide-react";
 import { useEffect, useState, type CSSProperties } from "react";
 import { useNav } from "@/lib/nav-context";
 
-// One shared spring used by EVERY animating element in the nav so the whole
-// thing moves as a single, coordinated organism.
-const spring = { type: "spring" as const, stiffness: 320, damping: 36, mass: 0.7 };
+// Single fixed-duration tween shared by EVERY animating element so the
+// whole nav starts and finishes in perfect lockstep — no spring variance.
+const transition = {
+  type: "tween" as const,
+  duration: 0.5,
+  ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+};
 
 const squircle: CSSProperties = {
   borderRadius: 20,
