@@ -36,8 +36,11 @@
   --color-prism-amber: var(--prism-amber);
   --color-prism-indigo: var(--prism-indigo);
   --color-prism-pink: var(--prism-pink);
+  --color-prism-lime: var(--prism-lime);
   --font-display: "Fraunces", "Times New Roman", serif;
   --font-body: "Inter Tight", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-hand: "Caveat", "Comic Sans MS", cursive;
 }
 
 :root {
@@ -65,13 +68,16 @@
   --prism-magenta: oklch(0.68 0.28 340);
   --prism-cyan: oklch(0.78 0.16 210);
   --prism-amber: oklch(0.82 0.16 70);
-  --prism-indigo: oklch(0.45 0.22 275);
+  --prism-indigo: oklch(0.55 0.24 275);
   --prism-pink: oklch(0.78 0.22 0);
+  --prism-lime: oklch(0.86 0.21 130);
 
   --glass-bg: color-mix(in oklab, oklch(0.18 0.04 280) 55%, transparent);
   --glass-border: color-mix(in oklab, white 18%, transparent);
   --glass-highlight: color-mix(in oklab, white 35%, transparent);
+  --glass-deep-bg: color-mix(in oklab, oklch(0.05 0.02 280) 75%, transparent);
   --shadow-float: 0 30px 80px -20px oklch(0 0 0 / 0.6), 0 8px 24px -12px oklch(0 0 0 / 0.5);
+  --sticker-stroke: color-mix(in oklab, white 70%, transparent);
 }
 
 .dark {
@@ -102,11 +108,58 @@
   box-shadow: var(--shadow-float), inset 0 1px 0 0 var(--glass-highlight);
 }
 
+@utility glass-deep {
+  background: var(--glass-deep-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(28px) saturate(140%);
+  box-shadow: inset 0 1px 0 0 var(--glass-highlight);
+}
+
 @utility goo {
   filter: url(#goo-filter);
+}
+
+@utility sticker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.25em 0.85em;
+  border: 1.5px solid var(--sticker-stroke);
+  border-radius: 999px;
+  background: color-mix(in oklab, white 6%, transparent);
+  font-family: var(--font-body);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  white-space: nowrap;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, white 8%, transparent);
+}
+
+@utility hand {
+  font-family: var(--font-hand);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+@utility mono {
+  font-family: var(--font-mono);
 }
 
 @keyframes drift-slow {
   0%, 100% { transform: translate3d(0,0,0) scale(1); }
   50% { transform: translate3d(2%, -3%, 0) scale(1.05); }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 60s linear infinite;
+}
+
+.group:hover .animate-marquee,
+.animate-marquee:hover {
+  animation-play-state: paused;
 }

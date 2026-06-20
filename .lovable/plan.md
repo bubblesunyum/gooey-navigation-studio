@@ -1,73 +1,52 @@
-# Bubbles Portfolio — App-Like Experience
 
-A portfolio that feels like a single-canvas app, not a scrolling document. The defining element is a gooey, glassy nav bar that lives near the bottom of the viewport and physically dodges section content as you scroll — sliding left, right, and back to center in a rhythmic, springy choreography. Behind it all: a slow, organic, liquid-color field that feels alive and unpredictable.
+# Remixing the notebook into a site
 
-## Pages & routes
+I'll rebuild the homepage (and lightly refresh `/about`, `/projects`, `/thanks`) into a long-scroll, section-anchored experience that the existing MorphNav already knows how to dock against. The hand-drawn notebook becomes the source of voice, structure, and personality — glassy panels, bold display type, playful micro-moments, and the liquid background we already have showing through.
 
-```text
-src/routes/
-  __root.tsx              # global shell: liquid background + morphing nav bar
-  index.tsx               # home / hero ("hai! i'm bubbles.")
-  about.tsx               # about page (app-style, full viewport)
-  projects.tsx            # projects index (list of case studies)
-  projects.$slug.tsx      # individual case study detail template
-  thanks.tsx              # thanks / credits
-```
+## Voice & visual language
 
-Each route gets its own `head()` metadata. Home keeps a true scroll with section anchors for About preview / Projects preview / Thanks preview so the nav-dodge choreography has somewhere to perform; full pages are reachable via the nav for deep reads.
+- **Typography**: pair a bold display serif with a clean grotesque for body, plus a mono accent for section numerals and metadata (keeps the "scientific notebook" feel from the project sketch). Display type is huge, tight-leaded, lowercase, occasionally italic/handwritten-script for cheeky asides ("bb.", "wanna dance with me?", "seriously, it's not that serious").
+- **Color**: lean into the liquid background — extend the prism tokens (magenta, cyan, gold, lime) as semantic accents in `styles.css`. Each section gets one dominant accent so the page reads as a chromatic journey.
+- **Material**: glass panels (existing `.glass`) for content cards, soft inner-glow rings, sticker-style outlined pills mimicking the inked circles/boxes in the notebook, and the goo filter for organic blob clusters behind values.
+- **Motion**: Framer Motion scroll-linked reveals — words mask up, pills pop in with spring, blobs drift, and the fractal scales bloom on intersect. Everything uses the same easing family as the nav so it feels of-a-piece.
 
-## The nav bar (the hero element)
+## New homepage sections (in scroll order, each registered with `useActiveSection`)
 
-Anchored ~24px from the bottom, max width 1920px, gooey + glassy (SVG goo filter + backdrop-blur + subtle inner highlight + soft outer shadow).
+1. **hero** — `hai! i'm bubbles.` with the existing prismatic orb, plus a small handwritten "wanna dance with me? ↓" nudge. Nav: center, no CTA.
+2. **bring** — "i bring —" followed by a loose constellation of hand-circled pills: *aesthetic sensibility, systems thinking, spiritual grounding, creative connections*. Below, the manifesto sentence: *"i use [design] and [art] to weave us a story of effortless coherence."* with `[design]` and `[art]` rendered as inline outlined stickers. Nav: right, CTA `more about me → /about`.
+3. **values** — "looking back, some patterns have emerged. here are my core values:" → four big glass cards (care · belonging · play · creation), each with its own accent gradient and a one-line gloss. Below: *"i design [delightfully] [fearlessly] [creatively] to honor these ideals and create a more sustainable, cohesive world — one we can lovingly share together."* Nav: left, CTA `read the manifesto → /about#manifesto`.
+4. **practice** — "how i work" stack of four big statements with underlined keywords:
+   - *i rely on **relationships** for creative collaboration.*
+   - *i cultivate **structured chaos** to find the spark.*
+   - *i practice **embodiment** to architect delight.*
+   - *i return to **rhythm** for coherent energy.*
+   Each line reveals on scroll with a small blob behind the underlined word. Nav: right, CTA `say hi → /thanks`.
+5. **projects** — "things i've made." Re-skin the existing project cards into the notebook's project-card layout: title bar, metadata row (role / year / tools / domain) as outlined sticker pills, short blurb, and a glassy thumbnail well. Show top 3, link to `/projects`. Nav: left, CTA `see all projects → /projects`.
+6. **fractal** — single-line, full-width scroll moment: *"a fractal at any scale:"* with **self → couple → community → culture → society** rendered as growing concentric glass rings that scale with scroll progress. Nav: center, no CTA.
+7. **manifesto-ticker** — horizontal marquee of the small punchy lines (*share and receive · fusion, not fission · build, combine, repeat · seriously, it's not that serious · don't improve your well-being at the expense of others · abundance · nothing lasts forever · live & love regeneratively*) drifting slowly, pausable on hover. Sits on a darker glass band. Nav: right, no CTA.
+8. **dance** — closing CTA: huge *"wanna dance with me?"* with a primary action button to `/thanks` and the social row repeated big. Small handwritten *"well, i'm here to change the culture then. bb."* underneath. Nav: left, CTA `say hello → /thanks`.
 
-Three states, driven by which section is in view:
+## Companion route refreshes (light touch)
 
-- **Center (hero / between sections):** full-width pill, centered menu row — `about · projects · thanks  •  ig  li  sc  mail`
-- **Left-docked:** bar shrinks to ~420px, slides to the left edge; left-side text items collapse into a 2-bar menu icon (tap → popover with about/projects/thanks); dot separator disappears; socials remain, left-aligned. The freed right side reveals a section-specific CTA (e.g. "Go deeper →").
-- **Right-docked:** mirror of left. Section CTA appears on the left side.
-
-Motion: Framer Motion `layout` + a short, springy transition (stiffness ~260, damping ~28, mass ~0.9). Width, x-offset, border-radius, and internal item layout all animate together via shared `layoutId`s so items glide rather than fade-swap.
-
-Scroll choreography: an IntersectionObserver tracks each section and maps it to one of `{center, left, right}` in an alternating pattern down the home page. Each full page (`/about`, `/projects`, etc.) also declares its preferred dock + its section CTA via context, so the bar reacts the same way on dedicated pages.
-
-Gooey rendering: a single inline SVG `<filter>` (`feGaussianBlur` → `feColorMatrix` contrast bump) applied to a wrapper containing the bar + a small blob that briefly "pinches off" during dock transitions for the liquid feel.
-
-## The background
-
-Full-viewport, fixed, behind everything. Organic, animated, liquid — not a clean mesh gradient.
-
-Implementation: a WebGL fragment shader (single full-screen quad via a tiny react-three-fiber setup) running layered domain-warped simplex noise with 4–5 bold color stops (deep indigo, electric magenta, prism cyan, warm amber, hot pink). Slow time advance + mouse parallax. A second pass adds soft bokeh-like highlights that drift across the field. Result: emergent, never-repeating, painterly, slightly absurd in its color choices — closer to oil-on-water than to a "gradient mesh generator."
-
-Fallback for no-WebGL: CSS conic + radial gradients with `@keyframes` slow rotation, heavy blur.
-
-## Type & visual system
-
-- Display: a chunky, playful rounded sans (Fraunces or Sora ExtraBold-style — final pick from a 2-option compare during build). Body: clean grotesque (Inter Tight or Geist).
-- Glass tokens in `src/styles.css`: `--glass-bg`, `--glass-border`, `--glass-highlight`, `--shadow-float`, `--goo-blur`.
-- Color tokens skew vivid against a near-black base.
-- Hover, focus, and active states feel tactile: subtle scale + light refraction sheen on glass surfaces.
-
-## Project detail template (`/projects/$slug`)
-
-App-style full page: hero with project title + role + year, a "Go deeper" CTA in the nav bar drops away (replaced with "Back to projects"), long-form sections (Problem, Approach, Outcome, Gallery). Data lives in a typed `src/data/projects.ts` array so you can add real case studies later by editing one file.
-
-## Social + CTAs
-
-Instagram, LinkedIn, SoundCloud, Mail icons in the nav use `#` placeholders for now; swap later. Each section's "deeper" CTA is a single, stark button in the docked nav bar.
+- **/about** — full manifesto: pull the longer prose from the notebook (presence, reverence, "i revere presence to produce meaning and connection"), plus the *amplify these ideas* trio (abundance · nothing lasts forever · live & love regeneratively) as three glass cards.
+- **/projects** — grid using the new project-card sticker-pill layout.
+- **/thanks** — add the *"wanna dance with me?"* energy and a clear contact block; keep existing form/fields if present.
 
 ## Technical notes
 
-- Framer Motion for layout choreography (already idiomatic for shared-layout morphs).
-- react-three-fiber + a single fragment shader for the background (tree-shaken, ~kb cost is the shader).
-- IntersectionObserver hook `useActiveSection` returns `{id, dock, cta}` and feeds a `NavContext`.
-- All sizing of the nav uses clamp() so it gracefully scales 320 → 1920px. On <768px, the bar stays centered and shrinks; side-dock choreography is desktop/tablet only (mobile gets a simpler always-centered glass bar).
-- SEO: per-route `head()`, semantic landmarks, single H1 per page, alt text on all imagery, JSON-LD `Person` schema on `/about`.
+- All new sections use `data-section="…"` so `useActiveSection` drives the nav docking + CTA as listed above.
+- Content sits inside a `max-w-[1920px] mx-auto` container per the earlier rule; sections are full-bleed but content is constrained.
+- Add design tokens to `src/styles.css`: `--accent-magenta`, `--accent-cyan`, `--accent-gold`, `--accent-lime`, plus matching `--gradient-*` and a `--sticker-stroke` for the inked-pill outlines. New utilities: `.sticker` (rounded outlined pill with hand-drawn-ish stroke + slight rotation), `.ink-underline` (svg squiggle under a word), `.glass-deep` (darker glass for the ticker band).
+- Reuse Framer Motion's existing `MotionConfig` tween so reveal timing matches the nav.
+- Fonts: load via `<link>` in `src/routes/__root.tsx` head — Fraunces (display, italic-rich), Inter Tight (body), JetBrains Mono (meta), Caveat (handwritten asides). No CSS `@import` of remote URLs.
+- Keep changes presentation-only: no backend, no new data models. Project list stays sourced from `src/data/projects.ts`.
 
-## Build order
+## Files I'll touch
 
-1. Tokens, fonts, global shell in `__root.tsx`, liquid background component (shader + fallback).
-2. Nav bar component with three layout states (static toggle first, no scroll wiring yet).
-3. `useActiveSection` + `NavContext`; wire scroll choreography on `/`.
-4. About, Projects index, Thanks pages (each declaring its dock + CTA).
-5. Project detail template + 2 placeholder case studies.
-6. Polish pass: goo filter tuning, spring tuning, reduced-motion fallback, mobile pass.
+- `src/styles.css` — accent tokens, sticker/ink-underline utilities, font-family vars.
+- `src/routes/__root.tsx` — `<link>` tags for the four web fonts.
+- `src/routes/index.tsx` — full rewrite into the 8 sections above, with `useActiveSection` updated.
+- `src/components/` — new presentational pieces: `Sticker.tsx`, `ValueCard.tsx`, `PracticeLine.tsx`, `ProjectCard.tsx`, `FractalScale.tsx`, `ManifestoTicker.tsx`, `RevealWord.tsx`.
+- `src/routes/about.tsx`, `src/routes/projects.tsx`, `src/routes/thanks.tsx` — restyle to match the new language (no structural rewrite of `/projects/$slug`).
+
+Want me to build it as described, or tweak any section's content/order first?
